@@ -1,0 +1,48 @@
+{{- $serviceName := include "python_app.fullname" . -}}
+{{- $namesoace := .Values.namespace -}}
+{{- $lables := .Values.labels -}}
+{{- $ingress := .Values.ingress -}}
+{{- if and .Values.ingress (kindIs "slice" .Values.ingress) }}
+{{- range $ingress }}
+---
+apiVersion: "networking.k8s.io/v1"
+kind: Ingress
+metadata:
+  name: {{ .name }}
+  namespace: {{ $namesoace }}
+  {{- with .annotations }}  
+  annotations:
+    konghq.com/protocols: https
+    konghq.com/https-redirect-status-code: "301"
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- toYaml $lables | nindent 4 }}
+spec:
+  rules:
+  {{- with .rules }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}
+
+{{ else if and .Values.ingress (kindIs "map" .Values.ingress) }}
+---
+apiVersion: "networking.k8s.io/v1"
+kind: Ingress
+metadata:
+  name: {{ .Values.ingress.name }}
+  namespace: {{ $namesoace }}
+  {{- with .Values.ingress.annotations }}  
+  annotations:
+    konghq.com/protocols: https
+    konghq.com/https-redirect-status-code: "301"
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- toYaml $lables | nindent 4 }}
+spec:
+  rules:
+  {{- with .Values.ingress.rules }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}

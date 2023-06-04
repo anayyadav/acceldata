@@ -1,0 +1,103 @@
+{{- $dumy := .Values.test -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "python_app.fullname" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- toYaml .Values.labels | nindent 4 }}
+spec:
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      {{- toYaml .Values.labels | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- toYaml .Values.labels | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "python_app.fullname" . }}
+      serviceAccount: {{ include "python_app.fullname" . }}
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: {{ include "python_app.fullname" . }}
+          image: "{{ $.Values.deployment.image.repository }}:{{ $.Values.deployment.image.tag }}"
+          imagePullPolicy: Always
+          {{- with .Values.deployment.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          ports:
+            - protocol: TCP
+            {{- if .Values.health_check.port }}
+              containerPort: {{ int .Values.health_check.port }}
+            {{- else }}
+              containerPort: 8080
+            {{- end }}
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: "{{ .Values.health_check.path }}"
+            {{- if .Values.health_check.port }}
+              port: {{ int .Values.health_check.port }}
+            {{- else }}
+              port: 8080
+            {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 1
+            successThreshold: 1
+            timeoutSeconds: 5
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: "{{ .Values.health_check.path }}"
+            {{- if .Values.health_check.port }}
+              port: {{ int .Values.health_check.port }}
+            {{- else }}
+              port: 8080
+            {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 1
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources:
+          {{- toYaml .Values.deployment.resources | nindent 12 }}
+          lifecycle:
+          {{- toYaml .Values.deployment.lifecycle | nindent 12 }}
+          env:
+            - name: DEPLOYMENT_ENV
+              value: {{ index .Values.labels "infra-env" }}
+          {{- with .Values.deployment.env }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.deployment.nodeSelector  }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              {{- toYaml .Values.labels | nindent 14 }}
+      {{- with .Values.deployment.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.deployment.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      restartPolicy: Always
+      dnsPolicy: ClusterFirst
+      securityContext: {}

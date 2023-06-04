@@ -1,0 +1,6 @@
+Flask==2.2.2
+httplib2==0.21.0
+pyhcl==0.4.4
+PyYAML==6.0
+websocket-client==1.4.2
+psycopg2-binary==2.9.5

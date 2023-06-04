@@ -1,0 +1,10 @@
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="//"
+
+--//
+Content-Type: text/x-shellscript; charset="us-ascii"
+#!/bin/bash
+set -o xtrace
+/etc/eks/bootstrap.sh  '${env}'-cluster --kubelet-extra-args '--node-labels=infra-env='${env}',infra-product='${product}',infra-service=kubernetes,infra-node-group=node-group-general-purpose,eks.amazonaws.com/capacityType=ON_DEMAND,eks.amazonaws.com/nodegroup=node-group-general-purpose,Name=new-node-group-general-purpose'  --apiserver-endpoint '${aws_eks_cluster_cluster_endpoint}' --b64-cluster-ca '${aws_eks_cluster_cluster_certificate_authority_data}' 
+
+--//--
