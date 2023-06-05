@@ -81,5 +81,5 @@ This repo includes following solutions
 
 3. Delete user details using python app 
 ```console
-    curl -X DELETE -H "Content-Type: application/json" http://python-app.xyz.com/delete/2234234234
+    curl -X DELETE -H "Content-Type: application/json" https://python-app.xyz.com/delete/2234234234
 ```
