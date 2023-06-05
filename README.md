@@ -52,7 +52,7 @@ This repo includes following solutions
 1. Create a user using python app 
 
 ```console
-    curl -X POST -H "Content-Type: application/json" http://python-app.xyz.com/create -d '{
+    curl -X POST -H "Content-Type: application/json" https://python-app.xyz.com/create -d '{
     "username": "xuz",
     "dob": "03/09/1997",
     "email": "asffc@gmail.com"
@@ -65,13 +65,13 @@ This repo includes following solutions
 2. Update a user details using python app 
 
 ```console
-    curl -X GET -H "Content-Type: application/json" http://python-app.xyz.com/users
+    curl -X GET -H "Content-Type: application/json" https://python-app.xyz.com/users
 
     [["2234234234","xuz","asffc@gmail.com","03/09/1997"]]
 
 ```
 ```console
-    curl -X PUT -H "Content-Type: application/json" http://python-app.xyz.com/create -d '{
+    curl -X PUT -H "Content-Type: application/json" https://python-app.xyz.com/create -d '{
     "id" : "2234234234"
     "username": "xuz",
     "dob": "03/09/1997",
