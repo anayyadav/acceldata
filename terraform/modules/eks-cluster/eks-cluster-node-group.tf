@@ -1,28 +1,97 @@
+
+locals {
+  asg-tags = [
+    {
+      tagKey   = "env"
+      tagValue = var.env
+    },
+    {
+      tagKey   = "infra-service"
+      tagValue = var.service
+    },
+  ]
+}
+## creating IAM role for node group
 resource "aws_iam_role" "cluster_node_group_iam_role" {
   name = "${var.env}-cluster-eks-node-group"
 
   assume_role_policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "ec2.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-POLICY
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Principal": {
+          "Service": "ec2.amazonaws.com"
+        },
+        "Action": "sts:AssumeRole"
+      }
+    ]
+  }
+  POLICY
 
   tags = {
     Name               = "${var.env}-cluster-eks-node-group"
     "eks:cluster-name" = "${var.env}-cluster"
     infra-env          = var.env
-    infra-product      = var.product
     infra-service      = var.service
   }
+}
+
+resource "aws_iam_policy" "eks_cluster_autoscaling_policy" {
+  name        = "EKSClusterNodeGroupAutoscalingPolicy"
+  path        = "/"
+  description = "EKSClusterNodeGroupAutoscalingPolicy"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "autoscaling:DescribeAutoScalingGroups",
+        "autoscaling:DescribeAutoScalingInstances",
+        "autoscaling:DescribeLaunchConfigurations",
+        "autoscaling:DescribeScalingActivities",
+        "autoscaling:DescribeTags",
+        "ec2:DescribeInstanceTypes",
+        "ec2:DescribeLaunchTemplateVersions"
+      ],
+      "Resource": ["*"]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "autoscaling:SetDesiredCapacity",
+        "autoscaling:TerminateInstanceInAutoScalingGroup",
+        "ec2:DescribeImages",
+        "ec2:GetInstanceTypesFromInstanceRequirements",
+        "eks:DescribeNodegroup"
+      ],
+      "Resource": ["*"]
+    },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:AttachVolume",
+                "ec2:CreateSnapshot",
+                "ec2:CreateTags",
+                "ec2:CreateVolume",
+                "ec2:DeleteSnapshot",
+                "ec2:DeleteTags",
+                "ec2:DeleteVolume",
+                "ec2:DescribeInstances",
+                "ec2:DescribeSnapshots",
+                "ec2:DescribeTags",
+                "ec2:DescribeVolumes",
+                "ec2:DetachVolume"
+            ],
+            "Resource": "*"
+        }
+  ]
+}
+EOF
 }
 
 resource "aws_iam_role_policy_attachment" "cluster_node_group_iam_role_AmazonEKSWorkerNodePolicy" {
@@ -39,7 +108,6 @@ resource "aws_iam_role_policy_attachment" "cluster_node_group_iam_role_AmazonEC2
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
   role       = aws_iam_role.cluster_node_group_iam_role.name
 }
-
 
 resource "aws_iam_role_policy_attachment" "cluster_node_group_iam_role_ssm_access" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
@@ -79,26 +147,7 @@ resource "aws_iam_role_policy_attachment" "cluster_node_group_iam_role_EKSNodeGr
   role       = aws_iam_role.cluster_node_group_iam_role.name
 }
 
-
-locals {
-  asg-tags = [
-    {
-      tagKey   = "env"
-      tagValue = var.env
-    },
-    {
-      tagKey   = "infra-product"
-      tagValue = var.product
-    },
-    {
-      tagKey   = "infra-service"
-      tagValue = var.service
-    },
-  ]
-}
-
-
-####### general purpose node group ########
+####### node group ########
 
 resource "aws_eks_node_group" "cluster_node_group_general_purpose" {
   cluster_name    = aws_eks_cluster.cluster.name
@@ -120,8 +169,7 @@ resource "aws_eks_node_group" "cluster_node_group_general_purpose" {
   labels = {
     Name             = var.node_group_general_purpose.name
     tool             = "terraform"
-    infra-env        = var.service
-    infra-product    = var.product
+    infra-env        = var.env
     infra-service    = var.service
     infra-node-group = var.node_group_general_purpose.name
   }
@@ -130,8 +178,7 @@ resource "aws_eks_node_group" "cluster_node_group_general_purpose" {
     Name               = var.node_group_general_purpose.name
     "eks:cluster-name" = aws_eks_cluster.cluster.name
     tool               = "terraform"
-    infra-env          = var.service
-    infra-product      = var.product
+    infra-env          = var.env
     infra-service      = var.service
   }
 

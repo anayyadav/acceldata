@@ -10,9 +10,8 @@ resource "aws_subnet" "private_subnet" {
   cidr_block        = cidrsubnet(aws_vpc.main.cidr_block, var.cidr_newbits, count.index)
 
   tags = {
-    Name          = "${var.env}-${var.product}-private-${count.index + 1}"
+    Name          = "${var.env}-private-${count.index + 1}"
     infra-env     = var.env
-    infra-product = var.product
     infra-service = var.service
 
   }
@@ -21,13 +20,11 @@ resource "aws_subnet" "private_subnet" {
 ## Creating EIP  ##
 
 resource "aws_eip" "eip" {
-  vpc              = true
   public_ipv4_pool = "amazon"
 
   tags = {
-    Name          = "${var.env}-${var.product}-eip"
+    Name          = "${var.env}-eip"
     infra-env     = var.env
-    infra-product = var.product
     infra-service = var.service
   }
 
@@ -42,9 +39,8 @@ resource "aws_nat_gateway" "nat_gw" {
 
 
   tags = {
-    Name          = "${var.env}-${var.product}-ngw"
+    Name          = "${var.env}-ngw"
     infra-env     = var.env
-    infra-product = var.product
     infra-service = var.service
   }
   depends_on = [aws_internet_gateway.igw, aws_subnet.public_subnet]
@@ -59,9 +55,8 @@ resource "aws_route_table" "private_rt" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name          = "${var.env}-${var.product}-private-rt"
+    Name          = "${var.env}-private-rt"
     infra-env     = var.env
-    infra-product = var.product
     infra-service = var.service
   }
 }
@@ -75,11 +70,6 @@ resource "aws_route" "nat-gw" {
   depends_on             = [aws_route_table.private_rt, aws_nat_gateway.nat_gw]
 
 }
-
-
-
-
-
 
 resource "aws_route_table_association" "private_subnet_to_route" {
   count          = length(aws_subnet.private_subnet)

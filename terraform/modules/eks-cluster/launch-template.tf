@@ -27,7 +27,7 @@ locals {
   node-userdata = <<USERDATA
 #!/bin/bash
 set -o xtrace
-/etc/eks/bootstrap.sh  --kubelet-extra-args '--node-labels=infra-env='${var.env}',infra-product='${var.product}',infra-service=kubernetes,infra-node-group=node-group-general-purpose,eks.amazonaws.com/capacityType=ON_DEMAND,eks.amazonaws.com/nodegroup=node-group-general-purpose,Name=new-node-group-general-purpose'  --apiserver-endpoint '${aws_eks_cluster.cluster.endpoint}' --b64-cluster-ca '${aws_eks_cluster.cluster.certificate_authority[0].data}' '${var.env}'
+/etc/eks/bootstrap.sh  --kubelet-extra-args '--node-labels=infra-env='${var.env}',infra-service=kubernetes,infra-node-group=node-group-general-purpose,eks.amazonaws.com/capacityType=ON_DEMAND,eks.amazonaws.com/nodegroup=node-group-general-purpose,Name=new-node-group-general-purpose'  --apiserver-endpoint '${aws_eks_cluster.cluster.endpoint}' --b64-cluster-ca '${aws_eks_cluster.cluster.certificate_authority[0].data}' '${var.env}'
 USERDATA
 }
 
@@ -68,10 +68,9 @@ resource "aws_launch_template" "lt_node_group_general_purpose" {
       tags = {
         Name          = "new-node-group-general-purpose"
         infra-env     = var.env
-        infra-product = var.product
         infra-service = var.service
       }
     }
   }
-  user_data = base64encode(templatefile("${path.module}/user-data/node_group_general_purpose_user_data.tftpl", { env = var.env, product = var.product, aws_eks_cluster_cluster_endpoint = aws_eks_cluster.cluster.endpoint, aws_eks_cluster_cluster_certificate_authority_data = aws_eks_cluster.cluster.certificate_authority[0].data }))
+  user_data = base64encode(templatefile("${path.module}/user-data/node_group_general_purpose_user_data.tftpl", { env = var.env, aws_eks_cluster_cluster_endpoint = aws_eks_cluster.cluster.endpoint, aws_eks_cluster_cluster_certificate_authority_data = aws_eks_cluster.cluster.certificate_authority[0].data }))
 }

@@ -2,10 +2,6 @@ variable "env" {
   description = "env type ex: prod, qa, dev"
 }
 
-variable "product" {
-  description = "name of app ex: backend, frontend, data-platform, devops, data-science"
-}
-
 variable "service" {
   description = "name of the service"
 }

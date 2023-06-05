@@ -41,7 +41,3 @@ output "VPCEnv" {
 output "VPCService" {
   value = var.service
 }
-
-output "VPCProduct" {
-  value = var.product
-}

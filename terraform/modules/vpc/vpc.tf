@@ -30,9 +30,8 @@ resource "aws_vpc" "main" {
   enable_dns_support   = true
 
   tags = {
-    Name          = "${var.env}-${var.product}-vpc"
+    Name          = "${var.env}-vpc"
     infra-env     = var.env
-    infra-product = var.product
     infra-service = var.service
   }
 }
@@ -41,9 +40,8 @@ resource "aws_default_route_table" "default-rt" {
   default_route_table_id = aws_vpc.main.default_route_table_id
 
   tags = {
-    Name          = "${var.env}-${var.product}-default-rt"
+    Name          = "${var.env}-default-rt"
     infra-env     = var.env
-    infra-product = var.product
     infra-service = var.service
   }
 }
@@ -53,9 +51,8 @@ resource "aws_default_security_group" "default-sg-vpc" {
   depends_on = [aws_vpc.main]
 
   tags = {
-    Name          = "${var.env}-${var.product}-sg-vpc"
+    Name          = "${var.env}-sg-vpc"
     infra-env     = var.env
-    infra-product = var.product
     infra-service = var.service
   }
 }
@@ -139,9 +136,8 @@ resource "aws_default_network_acl" "default" {
     ignore_changes = [subnet_ids]
   }
   tags = {
-    Name          = "${var.env}-${var.product}-nacl"
+    Name          = "${var.env}-nacl"
     infra-env     = var.env
-    infra-product = var.product
     infra-service = var.service
   }
 }

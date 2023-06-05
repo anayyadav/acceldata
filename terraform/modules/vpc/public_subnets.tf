@@ -11,9 +11,8 @@ resource "aws_subnet" "public_subnet" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name          = "${var.env}-${var.product}-public-${count.index + 1}"
+    Name          = "${var.env}-public-${count.index + 1}"
     infra-env     = var.env
-    infra-product = var.product
     infra-service = var.service
   }
   depends_on = [aws_vpc.main]
@@ -31,9 +30,8 @@ resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name          = "${var.env}-${var.product}-igw"
+    Name          = "${var.env}-igw"
     infra-env     = var.env
-    infra-product = var.product
     infra-service = var.service
   }
 }
@@ -45,9 +43,8 @@ resource "aws_route_table" "public_rt" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name          = "${var.env}-${var.product}-public-rt"
+    Name          = "${var.env}-public-rt"
     infra-env     = var.env
-    infra-product = var.product
     infra-service = var.service
   }
 }

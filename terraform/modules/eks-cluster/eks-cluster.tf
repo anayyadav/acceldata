@@ -53,7 +53,6 @@ resource "aws_eks_cluster" "cluster" {
     Name               = "${var.env}-cluster"
     "eks:cluster-name" = "${var.env}-cluster"
     infra-env          = var.env
-    infra-product      = var.product
     infra-service      = var.service
   }
 }

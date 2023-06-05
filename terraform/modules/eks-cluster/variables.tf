@@ -7,15 +7,12 @@ data "aws_availability_zones" "azs" {
 variable "env" {
 }
 
-variable "product" {
-}
-
 variable "service" {
 }
 
 variable "cluster" {
   default = {
-    name = "qa-cluster"
+    name = "test-cluster"
   }
 
   type = object({
@@ -31,24 +28,6 @@ variable "to_tag" {
 variable "node_group_general_purpose" {
   default = {
     name           = "general-purpose-node-group"
-    instance_types = ["t3a.micro"]
-    desired_size   = 1
-    max_size       = 1
-    min_size       = 1
-  }
-
-  type = object({
-    name           = string
-    instance_types = list(string)
-    desired_size   = number
-    max_size       = number
-    min_size       = number
-  })
-}
-
-variable "node_group_eks_tools" {
-  default = {
-    name           = "eks-tools-node-group"
     instance_types = ["t3a.micro"]
     desired_size   = 1
     max_size       = 1
