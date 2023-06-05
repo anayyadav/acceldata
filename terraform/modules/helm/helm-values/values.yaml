@@ -52,7 +52,7 @@ configmap:
       DBNAME="python_app"
       DBUSER="python_app"
       DBPASS="fRbDCX95q2AkJjbX"
-      DBHOST="ec2-dev-kb-shared-service-postgres.khatabook.com"
+      DBHOST="acceldata-db.ctqbh5j0sra2.us-east-1.rds.amazonaws.com"
 
 deployment:
   affinity: {}
