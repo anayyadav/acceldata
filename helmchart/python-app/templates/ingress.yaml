@@ -1,6 +1,8 @@
 {{- $serviceName := include "python_app.fullname" . -}}
 {{- $namesoace := .Values.namespace -}}
 {{- $lables := .Values.labels -}}
+{{- $ingress := .Values.ingress -}}
+{{- range $ingress }}
 ---
 apiVersion: "networking.k8s.io/v1"
 kind: Ingress
@@ -19,3 +21,4 @@ spec:
   {{- with .rules }}
     {{- toYaml . | nindent 4 }}
   {{- end }}
+{{- end }}

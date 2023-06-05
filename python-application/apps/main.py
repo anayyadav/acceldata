@@ -52,5 +52,11 @@ def showMessage(error=None):
     respone.status_code = 404
     return respone
 
+
+@app.route('/health', methods=['GET'])
+def foo():
+    return "OK "
+
+    
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8080)

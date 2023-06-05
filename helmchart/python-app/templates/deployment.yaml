@@ -25,6 +25,11 @@ spec:
     spec:
       serviceAccountName: {{ include "python_app.fullname" . }}
       serviceAccount: {{ include "python_app.fullname" . }}
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: {{ include "python_app.fullname" . }}
+        name: config-volume
       terminationGracePeriodSeconds: 60
       containers:
         - name: {{ include "python_app.fullname" . }}
@@ -71,6 +76,9 @@ spec:
             timeoutSeconds: 5
           resources:
           {{- toYaml .Values.deployment.resources | nindent 12 }}
+          volumeMounts:
+          - mountPath: /apps/apps/config
+            name: config-volume
           lifecycle:
           {{- toYaml .Values.deployment.lifecycle | nindent 12 }}
           env:

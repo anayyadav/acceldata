@@ -1,0 +1,106 @@
+# default values.yaml
+# you can write your own by refering to the examples given under each section.
+serviceName: python-app
+
+namespace: python-app
+
+labels:
+  app: python-app
+  infra-env: dev-0
+  infra-service: python-app
+
+autoscaling:
+  min: 2
+  max: 4
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+  behavior:
+    scaleUp:
+      policies:
+      - periodSeconds: 30
+        type: Pods
+        value: 1
+      - periodSeconds: 30
+        type: Percent
+        value: 10
+      selectPolicy: Max
+      stabilizationWindowSeconds: 60
+    scaleDown:
+      policies:
+      - periodSeconds: 60
+        type: Pods
+        value: 1
+      selectPolicy: Max
+      stabilizationWindowSeconds: 300
+
+### example deployment ###
+
+configmap:
+  data:
+    config.py: |
+      DBNAME="python_app"
+      DBUSER="python_app"
+      DBPASS="fRbDCX95q2AkJjbX"
+      DBHOST="ec2-dev-kb-shared-service-postgres.khatabook.com"
+
+deployment:
+  affinity: {}
+  image:
+    repository: 741386957827.dkr.ecr.ap-south-1.amazonaws.com/dev-python-app
+    tag: '20221207083306'
+  podAnnotations: {}
+  lifecycle:
+    preStop:
+      exec:
+        command:
+          - sh
+          - '-c'
+          - sleep 30
+  args: {}
+  resources:
+    limits:
+      cpu: 200m
+      memory: 200Mi
+    requests:
+      cpu: 100m
+      memory: 100Mi
+  nodeSelector: {}
+  tolerations: {}
+  env:
+    - name: DEPLOYMENT_ENV
+      value: dev-0
+
+##############
+
+
+health_check:
+  path: "/health"
+  port: 8080
+
+
+ingress:
+  - name: python-app-private
+    annotations:
+      kubernetes.io/ingress.class: kong-private
+    rules:
+      - host: python-app.xyz.com
+        http:
+          paths:
+            - path: /python-app
+              pathType: Prefix
+              backend:
+                service:
+                  name: python-app
+                  port:
+                    number: 80
